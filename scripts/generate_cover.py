@@ -30,7 +30,7 @@ import argparse
 import json
 
 
-DOUBAO_NEGATIVE_SUFFIX = "，高质量摄影或精致插画质感，真实光影，细节丰富，画面中不要出现任何文字、字母、汉字、水印、logo、签名、边框，避免AI生成感、廉价塑料感、人脸畸形、手指畸形、过度光滑、蜡像感"
+DOUBAO_NEGATIVE_SUFFIX = "，高质量摄影或精致插画质感，真实光影，细节丰富，边缘锐利，避免AI生成感、廉价塑料感、人脸畸形、手指畸形、过度光滑、蜡像感、低分辨率、颗粒噪点"
 
 
 def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-0-250828") -> dict:
@@ -58,9 +58,8 @@ def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-0-250828"
     if not api_key:
         raise ValueError("缺少豆包图像API凭证，请设置环境变量 DOUBAO_API_KEY 或在 .env 文件中配置")
 
-    # 自动追加防 AI 感负面词后缀（用户已写"避免"或"不要出现"则跳过）
-    if "避免" not in prompt and "不要出现" not in prompt:
-        prompt = prompt + DOUBAO_NEGATIVE_SUFFIX
+    # 始终追加防 AI 感负面词后缀（无论 prompt 是否已含"避免/不要出现"，水印相关已在 API watermark=False 处理）
+    prompt = prompt + DOUBAO_NEGATIVE_SUFFIX
 
     # 构建请求
     url = "https://ark.cn-beijing.volces.com/api/v3/images/generations"
@@ -88,6 +87,7 @@ def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-0-250828"
         if "watermark" in body.lower():
             raise Exception(
                 f"豆包接口拒绝了 watermark=False（状态码 {response.status_code}）。"
+                f"当前已强制设置 watermark=False + 负面词后缀防 AI 感。"
                 f"建议改用千问：--provider qwen，或换老模型：--doubao-model doubao-seedream-4-0-250828。"
                 f"原始响应: {body}"
             )
@@ -150,7 +150,7 @@ def generate_cover_qwen(prompt: str, size: str = "1664*928", model: str = "qwen-
             ]
         },
         "parameters": {
-            "negative_prompt": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，AI生成感，廉价感，任何文字，任何字母，任何汉字，任何水印，任何logo，边框，签名，构图混乱，文字模糊，文字扭曲",
+            "negative_prompt": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，AI生成感，廉价感，任何文字，任何字母，任何汉字，任何水印，水印痕迹，残留水印，任何logo，边框，签名，构图混乱，文字模糊，文字扭曲，噪点，颗粒感",
             "prompt_extend": True,
             "watermark": False,
             "size": size
