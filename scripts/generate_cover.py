@@ -14,14 +14,14 @@
 2. 千问 (Qwen) - 通义万相
 
 使用方法（prompt 必须遵循 SKILL.md『🚨 图片生成核心规范』中的五要素结构）：
-    # 使用千问生成（默认）
-    python3 generate_cover.py --prompt "<核心意象>，<情绪基调>，<画面风格>，16:9 横向构图，主体居中偏左，留白用于标题文字，画面中不要出现任何文字、字母、汉字、水印、logo、签名"
+    # 使用千问生成（默认，900×383 符合微信封面 2.35:1 标准）
+    python3 generate_cover.py --prompt "<核心意象>，<情绪基调>，<画面风格>，2.35:1 横向构图，主体居中偏左，右上角嵌入小字「意疏AI口袋」，中部区域小字「标题关键词」（避开底部 15% 遮挡区），画面主体不要出现任何文字、字母、汉字，水印、logo、签名"
 
     # 切换到豆包
     python3 generate_cover.py --prompt "<五要素 prompt>" --provider doubao
 
     # 指定尺寸（千问支持）
-    python3 generate_cover.py --prompt "<五要素 prompt>" --provider qwen --size "1024*1024"
+    python3 generate_cover.py --prompt "<五要素 prompt>" --provider qwen --size "900*383"
 """
 
 import os
@@ -119,7 +119,7 @@ def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-0-250828"
     }
 
 
-def generate_cover_qwen(prompt: str, size: str = "1664*928", model: str = "qwen-image-2.0") -> dict:
+def generate_cover_qwen(prompt: str, size: str = "900*383", model: str = "qwen-image-2.0") -> dict:
     """
     使用千问生成封面图片
     
@@ -314,9 +314,9 @@ def main():
     # 千问专用参数
     parser.add_argument(
         "--size",
-        choices=["1664*928", "1024*1024", "720*1280", "1280*720"],
-        default="1664*928",
-        help="图片尺寸（仅千问支持，默认: 1664*928）"
+        choices=["900*383", "1024*1024", "720*1280", "1280*720", "1664*928"],
+        default="900*383",
+        help="图片尺寸（仅千问支持，默认: 900*383，符合微信封面 2.35:1 标准）"
     )
     
     parser.add_argument(

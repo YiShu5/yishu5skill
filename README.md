@@ -17,7 +17,7 @@
 ### 🖼️ 智能配图
 - 自动生成文章封面和配图
 - 使用千问 AI 生成高质量图片（默认，可切换豆包）
-- 自动生成横屏图片（16:9 比例）
+- 自动生成横屏图片（2.35:1 比例，符合微信封面标准）
 - 上传到公众号永久素材
 
 ### 📄 文章格式
@@ -87,7 +87,7 @@ DOUBAO_API_KEY=你的豆包APIKey
 ARTICLE_SHOW_TITLE=false          # 正文不显示标题
 ARTICLE_IMAGE_COUNT=3             # 插入3张配图
 IMAGE_ORIENTATION=horizontal      # 横屏图片
-IMAGE_PROMPT_SUFFIX=，16:9横屏构图  # 图片生成提示词后缀
+IMAGE_PROMPT_SUFFIX=，2.35:1横屏构图  # 图片生成提示词后缀（符合微信封面标准）
 ```
 
 ---
@@ -156,7 +156,7 @@ Agent 会提取、改写并发布文章。
 
 ### 生成图片
 ```bash
-python3 scripts/generate_cover.py --prompt "描述，16:9横屏构图"
+python3 scripts/generate_cover.py --prompt "描述，2.35:1横屏构图"
 ```
 
 ### 上传图片
@@ -193,7 +193,7 @@ python3 scripts/create_draft.py \
 - [x] Markdown 转 HTML（doocs/md 排版）
 - [x] 主题自动选择（8种主题）
 - [x] 图片生成（千问 AI，默认）
-- [x] 横屏图片生成（16:9）
+- [x] 横屏图片生成（2.35:1，符合微信封面标准）
 - [x] 图片上传到公众号
 - [x] 创建草稿
 - [x] 发布文章
