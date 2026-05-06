@@ -13,15 +13,15 @@
 1. 豆包 (Doubao) - 默认
 2. 千问 (Qwen) - 通义万相
 
-使用方法：
-    # 使用豆包生成（默认）
-    python3 generate_cover.py --prompt "科技风格插画"
-    
-    # 使用千问生成
-    python3 generate_cover.py --prompt "科技风格插画" --provider qwen
-    
+使用方法（prompt 必须遵循 SKILL.md『🚨 图片生成核心规范』中的五要素结构）：
+    # 使用千问生成（默认）
+    python3 generate_cover.py --prompt "<核心意象>，<情绪基调>，<画面风格>，16:9 横向构图，主体居中偏左，留白用于标题文字，画面中不要出现任何文字、字母、汉字、水印、logo、签名"
+
+    # 切换到豆包
+    python3 generate_cover.py --prompt "<五要素 prompt>" --provider doubao
+
     # 指定尺寸（千问支持）
-    python3 generate_cover.py --prompt "科技风格插画" --provider qwen --size "1024*1024"
+    python3 generate_cover.py --prompt "<五要素 prompt>" --provider qwen --size "1024*1024"
 """
 
 import os
@@ -30,19 +30,22 @@ import argparse
 import json
 
 
-def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-5-251128") -> dict:
+DOUBAO_NEGATIVE_SUFFIX = "，高质量摄影或精致插画质感，真实光影，细节丰富，画面中不要出现任何文字、字母、汉字、水印、logo、签名、边框，避免AI生成感、廉价塑料感、人脸畸形、手指畸形、过度光滑、蜡像感"
+
+
+def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-0-250828") -> dict:
     """
     使用豆包生成封面图片
-    
+
     Args:
         prompt: 图片提示词
         model: 豆包模型（doubao-seedream-4-0-250828, doubao-seedream-4-5-251128, doubao-seedream-5-0-260128）
-        
+
     Returns:
         dict: 包含图片URL的响应数据
     """
     import requests
-    
+
     # 获取API Key - 优先从配置文件读取
     api_key = os.getenv("DOUBAO_API_KEY")
     if not api_key:
@@ -51,17 +54,21 @@ def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-5-251128"
             api_key = get_doubao_api_key()
         except:
             pass
-    
+
     if not api_key:
         raise ValueError("缺少豆包图像API凭证，请设置环境变量 DOUBAO_API_KEY 或在 .env 文件中配置")
-    
+
+    # 自动追加防 AI 感负面词后缀（用户已写"避免"或"不要出现"则跳过）
+    if "避免" not in prompt and "不要出现" not in prompt:
+        prompt = prompt + DOUBAO_NEGATIVE_SUFFIX
+
     # 构建请求
     url = "https://ark.cn-beijing.volces.com/api/v3/images/generations"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
     }
-    
+
     request_data = {
         "model": model,
         "prompt": prompt,
@@ -69,21 +76,34 @@ def generate_cover_doubao(prompt: str, model: str = "doubao-seedream-4-5-251128"
         "response_format": "url",
         "size": "2K",
         "stream": False,
-        "watermark": True
+        "watermark": False
     }
-    
+
     print(f"正在使用豆包生成封面图片 (模型: {model})...", file=sys.stderr)
-    
+
     response = requests.post(url, headers=headers, json=request_data, timeout=120)
-    
+
     if response.status_code >= 400:
-        raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, 响应: {response.text}")
-    
+        body = response.text
+        if "watermark" in body.lower():
+            raise Exception(
+                f"豆包接口拒绝了 watermark=False（状态码 {response.status_code}）。"
+                f"建议改用千问：--provider qwen，或换老模型：--doubao-model doubao-seedream-4-0-250828。"
+                f"原始响应: {body}"
+            )
+        raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, 响应: {body}")
+
     data = response.json()
-    
+
     if data.get("error"):
         error_info = data["error"]
-        raise Exception(f"豆包API错误: {error_info.get('message', '未知错误')}")
+        msg = error_info.get('message', '未知错误')
+        if "watermark" in msg.lower():
+            raise Exception(
+                f"豆包API错误（watermark 相关）: {msg}。"
+                f"建议改用千问：--provider qwen，或换老模型：--doubao-model doubao-seedream-4-0-250828。"
+            )
+        raise Exception(f"豆包API错误: {msg}")
     
     # 解析响应
     images = data.get("data", [])
@@ -130,7 +150,7 @@ def generate_cover_qwen(prompt: str, size: str = "1664*928", model: str = "qwen-
             ]
         },
         "parameters": {
-            "negative_prompt": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲。",
+            "negative_prompt": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，AI生成感，廉价感，任何文字，任何字母，任何汉字，任何水印，任何logo，边框，签名，构图混乱，文字模糊，文字扭曲",
             "prompt_extend": True,
             "watermark": False,
             "size": size
@@ -140,7 +160,7 @@ def generate_cover_qwen(prompt: str, size: str = "1664*928", model: str = "qwen-
     print(f"正在使用千问生成封面图片 (模型: {model}, 尺寸: {size})...", file=sys.stderr)
     
     response = requests.post(
-        "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generationn",
+        "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation",
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}"
@@ -279,16 +299,16 @@ def main():
     parser.add_argument(
         "--provider",
         choices=["doubao", "qwen"],
-        default="doubao",
-        help="图像生成服务提供商: doubao (豆包，默认) 或 qwen (千问)"
+        default=os.getenv("IMAGE_PROVIDER", "qwen"),
+        help="图像生成服务提供商: qwen (千问，默认) 或 doubao (豆包)。可用环境变量 IMAGE_PROVIDER 覆盖默认值。"
     )
-    
+
     # 豆包专用参数
     parser.add_argument(
         "--doubao-model",
         choices=["doubao-seedream-4-0-250828", "doubao-seedream-4-5-251128", "doubao-seedream-5-0-260128"],
-        default="doubao-seedream-4-5-251128",
-        help="豆包模型（仅豆包支持，默认: doubao-seedream-4-5-251128）"
+        default="doubao-seedream-4-0-250828",
+        help="豆包模型（仅豆包支持，默认: doubao-seedream-4-0-250828，对 watermark=False 兼容性更好）"
     )
     
     # 千问专用参数
