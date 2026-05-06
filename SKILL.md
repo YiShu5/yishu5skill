@@ -452,7 +452,7 @@ MARKDOWN_THEME=                       # orange / purple / green / blue / red / c
   - [references/viral_titles_50.md](references/viral_titles_50.md) - 50 个爆款标题范例 + 背后逻辑
   - [references/三遍审校清单.md](references/三遍审校清单.md) - 三遍审校流程（内容 / 风格 / 细节），初稿写完后强制执行
   - [HUMANIZE_GUIDE.md](HUMANIZE_GUIDE.md) - 去 AI 化写作详细规则与替换词表
-  - [CHICKEN_SOUP_STYLE.md](CHICKEN_SOUP_STYLE.md) - 鸡汤情感类文章风格指南
+  - [CHICKEN_SOUP_STYLE.md](CHICKEN_SOUP_STYLE.md) - AI 技术工具评测 / 编程效率 / Prompt 工程类文章写作规范
 
 ## 注意事项
 - 文章内容必须是**内联样式 HTML**（微信编辑器不识别 `<style>` 标签），用 `markdown_to_wechat_doocs.py` 转换得到
