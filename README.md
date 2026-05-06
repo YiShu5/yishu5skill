@@ -13,7 +13,7 @@
 
 ### 🖼️ 智能配图
 - 自动生成文章封面和配图
-- 使用豆包 AI 生成高质量图片
+- 使用千问 AI 生成高质量图片（默认，可切换豆包）
 - 自动生成横屏图片（16:9 比例）
 - 上传到公众号永久素材
 
@@ -70,7 +70,10 @@ python3 config.py
 WECHAT_APP_ID=你的AppID
 WECHAT_APP_SECRET=你的AppSecret
 
-# 豆包 API Key
+# 千问 API Key（默认，对 watermark=False 更稳定）
+DASHSCOPE_API_KEY=你的千问APIKey
+
+# 豆包 API Key（可选）
 DOUBAO_API_KEY=你的豆包APIKey
 ```
 
@@ -186,7 +189,7 @@ python3 scripts/create_draft.py \
 - [x] 文章提取（从公众号链接）
 - [x] Markdown 转 HTML（doocs/md 排版）
 - [x] 主题自动选择（8种主题）
-- [x] 图片生成（豆包 AI）
+- [x] 图片生成（千问 AI，默认）
 - [x] 横屏图片生成（16:9）
 - [x] 图片上传到公众号
 - [x] 创建草稿
@@ -199,7 +202,7 @@ python3 scripts/create_draft.py \
 
 - [ ] 一键发布工具（整合所有步骤）
 - [ ] 更多排版主题
-- [ ] 支持千问图像生成
+- [x] 支持千问图像生成（默认）
 - [ ] 文章数据分析
 - [ ] 定时发布
 
@@ -218,11 +221,14 @@ python3 scripts/create_draft.py \
 ### Q: 如何获取公众号凭证？
 A: 登录 https://mp.weixin.qq.com → 开发 → 基本配置
 
+### Q: 如何获取千问 API Key？
+A: 访问 https://dashscope.console.aliyun.com/（推荐，watermark=False 更稳定）
+
 ### Q: 如何获取豆包 API Key？
-A: 访问 https://console.volc.com/iam/keylist
+A: 访问 https://console.volc.com/iam/keylist（需开通图像生成服务权限）
 
 ### Q: 图片生成失败？
-A: 检查豆包 API Key 是否正确，账号是否开通图像生成服务
+A: 检查 API Key 是否正确；千问默认用 `DASHSCOPE_API_KEY`，切换到豆包用 `IMAGE_PROVIDER=doubao`
 
 ### Q: 如何更换主题？
 A: 主题会根据文章内容自动选择，无需手动设置
@@ -233,7 +239,7 @@ A: 主题会根据文章内容自动选择，无需手动设置
 
 - **文档**: 查看 `CONFIG.md` 和 `THEME_GUIDE.md`
 - **Issues**: 提交问题和建议
-- **社区**: 加入 OpenClaw 社区讨论
+- **社区**: 在 GitHub 提交 Issue 或联系作者
 
 ---
 

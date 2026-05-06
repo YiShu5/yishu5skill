@@ -458,7 +458,7 @@ MARKDOWN_THEME=                       # orange / purple / green / blue / red / c
 - 文章内容必须是**内联样式 HTML**（微信编辑器不识别 `<style>` 标签），用 `markdown_to_wechat_doocs.py` 转换得到
 - 封面图片由 `generate_cover.py` 自动生成（千问默认 `1664×928` 16:9，自动压缩到 ≤ 800KB），符合微信缩略图素材 2MB 限制
 - AppID 和 AppSecret 必须正确，否则无法获取 access token
-- 脚本会自动获取access_token，无需手动管理
+- 脚本会自动获取 access token，无需手动管理
 - 生成封面图片需要图像 API 凭证（默认千问 `DASHSCOPE_API_KEY`，可选豆包 `DOUBAO_API_KEY`）
 - 发布操作不可逆，建议先创建草稿确认内容
 - 注意API调用频率限制
